@@ -1,0 +1,45 @@
+#include <stdio.h>
+
+// Функция для чтения данных из стандартного ввода
+void readData(int *n, double x[], double y[]) {
+    scanf("%d", n);  // Считываем количество точек
+    for (int i = 0; i < *n; i++) {
+        scanf("%lf%lf", &x[i], &y[i]);  // Считываем пары значений x и y
+    }
+}
+
+// Функция для вычисления значения полинома Лагранжа в заданной точке
+double lagrangeInterpolation(int n, double x[], double y[], double x_value) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        double term = y[i];
+        for (int j = 0; j < n; j++) {
+            if (j != i) {
+                term *= (x_value - x[j]) / (x[i] - x[j]);
+            }
+        }
+        result += term;
+    }
+    return result;
+}
+
+int main() {
+    int n;
+    double x[100], y[100];  // Максимальное количество точек - 100
+    double x_value;
+
+    // Чтение данных с терминала
+    readData(&n, x, y);
+
+    // Запрос значения x для интерполяции
+    printf("Введите значение x, для которого нужно найти значение полинома L(x): ");
+    scanf("%lf", &x_value);
+
+    // Вычисление значения полинома Лагранжа
+    double result = lagrangeInterpolation(n, x, y, x_value);
+
+    // Вывод результата
+    printf("Значение полинома L(%.6lf) = %.6lf\n", x_value, result);
+
+    return 0;
+}
