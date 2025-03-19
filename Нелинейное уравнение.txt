@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <math.h>
+#define EPSILON 1e-6 // Точность решения
+
+// Функция f(x)
+double f(double x) {
+    return 0.5 * exp(-sqrt(x)) - 0.2 * sqrt(pow(x, 3)) + 2;
+}
+
+// Метод хорд
+double chordMethod(double a, double b) {
+    if (f(a) * f(b) >= 0) {
+        printf("Ошибка: неверный выбор интервала [a, b]\n");
+        return NAN;
+    }
+    
+    double x;
+    while (fabs(b - a) > EPSILON) {
+        x = b - (f(b) * (b - a)) / (f(b) - f(a));
+        
+        if (fabs(f(x)) < EPSILON) break;
+        
+        if (f(a) * f(x) < 0)
+            b = x;
+        else
+            a = x;
+    }
+    return x;
+}
+
+int main() {
+    // [2, 5]
+    double a, b;
+    printf("Введите границы интервала [a, b]: ");
+    scanf("%lf %lf", &a, &b);
+    
+    double root = chordMethod(a, b);
+    if (!isnan(root)) {
+        printf("Найденный корень: x = %.6lf\n", root);
+    }
+    
+    return 0;
+}

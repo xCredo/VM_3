@@ -1,0 +1,45 @@
+#include <stdio.h>
+#define N 4 // Размерность системы уравнений
+
+void gaussElimination(double matrix[N][N+1], double result[N]) {
+    int i, j, k;
+    for (i = 0; i < N; i++) {
+        // Приведение к диагональному виду
+        for (j = i + 1; j < N; j++) {
+            double factor = matrix[j][i] / matrix[i][i];
+            for (k = i; k <= N; k++) {
+                matrix[j][k] -= factor * matrix[i][k];
+            }
+        }
+    }
+    
+    // Обратный ход метода Гаусса
+    for (i = N - 1; i >= 0; i--) {
+        result[i] = matrix[i][N] / matrix[i][i];
+        for (j = i - 1; j >= 0; j--) {
+            matrix[j][N] -= matrix[j][i] * result[i];
+        }
+    }
+}
+
+int main() {
+    double matrix[N][N+1];
+    double result[N];
+    
+    printf("Введите коэффициенты системы уравнений (A и B):\n");
+    for (int i = 0; i < N; i++) {
+        printf("Уравнение %d: ", i + 1);
+        for (int j = 0; j <= N; j++) {
+            scanf("%lf", &matrix[i][j]);
+        }
+    }
+    
+    gaussElimination(matrix, result);
+    
+    printf("Решение:\n");
+    for (int i = 0; i < N; i++) {
+        printf("x%d = %lf\n", i + 1, result[i]);
+    }
+    
+    return 0;
+}
