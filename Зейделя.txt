@@ -1,68 +1,72 @@
 #include <stdio.h>
 #include <math.h>
-#define N 4 // Размерность системы уравнений
-#define EPSILON 1e-6 // Точность решения
-#define MAX_ITER 100 // Максимальное количество итераций
 
-void seidelMethod(double matrix[N][N+1], double result[N]) {
-    double previous[N] = {0};
+#define N 4               
+#define EPSILON 1e-6     
+#define MAX_ITER 100      
+
+void seidelMethod(double matrix[N][N+1], double x[N]) {
     int iter, i, j;
-    
+    double x_old[N];
+
     for (iter = 0; iter < MAX_ITER; iter++) {
+        // Сохраняем предыдущее приближение
         for (i = 0; i < N; i++) {
-            if (fabs(matrix[i][i]) < EPSILON) { // Проверка деления на 0
-                printf("Ошибка: нулевой элемент на диагонали, метод Зейделя не применим.\n");
+            x_old[i] = x[i];
+        }
+
+        // Одна итерация Зейделя
+        for (i = 0; i < N; i++) {
+            if (fabs(matrix[i][i]) < EPSILON) {
+                printf("Ошибка: нулевой (или близкий к нулю) элемент на диагонали в строке %d.\n", i + 1);
                 return;
             }
+
             double sum = matrix[i][N];
             for (j = 0; j < N; j++) {
-                if (i != j) {
-                    sum -= matrix[i][j] * result[j];
+                if (j != i) {
+                    sum -= matrix[i][j] * x[j];
                 }
             }
-            result[i] = sum / matrix[i][i];
+            x[i] = sum / matrix[i][i];
         }
-        
-        // Проверка сходимости
-        int converged = 1;
+
+        // Проверка на сходимость
+        double max_diff = 0.0;
         for (i = 0; i < N; i++) {
-            if (fabs(result[i] - previous[i]) > EPSILON) {
-                converged = 0;
-                break;
+            double diff = fabs(x[i] - x_old[i]);
+            if (diff > max_diff) {
+                max_diff = diff;
             }
         }
-        if (converged) {
+
+        if (max_diff < EPSILON) {
             printf("Метод Зейделя сошелся за %d итераций.\n", iter + 1);
-            break;
-        }
-        
-        for (i = 0; i < N; i++) {
-            previous[i] = result[i];
+            return;
         }
     }
-    if (iter == MAX_ITER) {
-        printf("Предупреждение: метод не сошелся за %d итераций.\n", MAX_ITER);
-    }
+
+    printf("Предупреждение: метод не сошелся за %d итераций.\n", MAX_ITER);
 }
 
 int main() {
     double matrix[N][N+1];
-    double result[N] = {0};
-    
-    printf("Введите коэффициенты системы уравнений (A и B):\n");
+    double x[N] = {0};
+
+    printf("Введите коэффициенты системы (матрица %dx%d + свободный член):\n", N, N);
     for (int i = 0; i < N; i++) {
         printf("Уравнение %d: ", i + 1);
         for (int j = 0; j <= N; j++) {
             scanf("%lf", &matrix[i][j]);
         }
     }
-    
-    seidelMethod(matrix, result);
-    
+
+    seidelMethod(matrix, x);
+
     printf("Решение:\n");
     for (int i = 0; i < N; i++) {
-        printf("x%d = %lf\n", i + 1, result[i]);
+        printf("x%d = %.6lf\n", i + 1, x[i]);
     }
-    
+
     return 0;
 }
